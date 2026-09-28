@@ -185,21 +185,6 @@ class CustomerEditForm(forms.ModelForm):
             "password": forms.PasswordInput(render_value=True),
         }
 
-class ProductEditForm(forms.ModelForm):
-
-    class Meta:
-        model = Product
-        fields = [
-            "product_name",
-            "quantity_per_unit",
-            "unit_price",
-            "units_in_stock",
-            "units_on_order",
-            "reorder_level",
-            "supplier",
-            "category",
-        ]
-
     def clean_phone(self):
         """
         Server layer of the phone validation example. Django calls
@@ -251,6 +236,68 @@ class ProductEditForm(forms.ModelForm):
         if city and not re.fullmatch(NO_DIGITS_PATTERN, city):
             raise ValidationError("City can't contain numbers.")
         return city
+
+class ProductEditForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["unit_price"].widget.attrs.update({
+            "min": "0",
+            "title": "Unit price cannot be negative.",
+        })
+
+        self.helper = FormHelper()
+        self.helper.form_id = "product-edit-form"
+        self.helper.layout = Layout(
+            Row(
+                Column("product_name", css_class="col-md-6"),
+                Column("quantity_per_unit", css_class="col-md-6"),
+            ),
+            Row(
+                Column("unit_price", css_class="col-md-4"),
+                Column("units_in_stock", css_class="col-md-4"),
+                Column("units_on_order", css_class="col-md-4"),
+            ),
+            Row(
+                Column("reorder_level", css_class="col-md-4"),
+                Column("supplier", css_class="col-md-4"),
+                Column("category", css_class="col-md-4"),
+            ),
+            HTML(
+                """
+                <div class="d-flex gap-2 mt-3 justify-content-end">
+                    <button type="submit"
+                            class="btn dt-btn-primary-product w3-hover-shadow"
+                            title="Save changes">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                    </button>
+                </div>
+                """
+            ),
+        )
+
+
+    class Meta:
+        model = Product
+        fields = [
+            "product_name",
+            "quantity_per_unit",
+            "unit_price",
+            "units_in_stock",
+            "units_on_order",
+            "reorder_level",
+            "supplier",
+            "category",
+        ]
+
+    def clean_unit_price(self):
+        unit_price = self.cleaned_data.get("unit_price")
+
+        if unit_price is not None and unit_price < 0:
+            raise ValidationError("Unit price cannot be negative.")
+
+        return unit_price
 
 
 class OrderDetailForm(forms.ModelForm):
