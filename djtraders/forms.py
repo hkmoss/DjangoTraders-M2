@@ -46,7 +46,7 @@ from django.core.exceptions import ValidationError
 
 from datetime import date, timedelta
 
-from .models import Customer, Order, OrderDetail
+from .models import Customer, Order, OrderDetail, Product 
 
 # Digits, spaces, parentheses, and dashes only, 7-20 characters -- loose
 # enough to accept "(206) 555-9857" or "030-0074321", tight enough to
@@ -184,6 +184,21 @@ class CustomerEditForm(forms.ModelForm):
         widgets = {
             "password": forms.PasswordInput(render_value=True),
         }
+
+class ProductEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Product
+        fields = [
+            "product_name",
+            "quantity_per_unit",
+            "unit_price",
+            "units_in_stock",
+            "units_on_order",
+            "reorder_level",
+            "supplier",
+            "category",
+        ]
 
     def clean_phone(self):
         """

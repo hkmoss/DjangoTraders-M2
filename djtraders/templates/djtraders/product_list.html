@@ -40,6 +40,17 @@
                        class="form-control"
                        placeholder="Product Name"
                        value="{{ search_product_name }}">
+  
+                  <select name="supplier" class="form-select" onchange="this.form.submit()">
+                    <option value="">Select Supplier</option>
+                    {% for supplier in suppliers %}
+                        <option value="{{ supplier.supplier_id }}"
+                                {% if supplier.supplier_id|stringformat:"s" == search_supplier_id %}selected{% endif %}>
+                            {{ supplier.company_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+  
                 <select name="category" class="form-select" onchange="this.form.submit()">
                     <option value="">Select Category</option>
                     {% for category in categories %}
@@ -47,11 +58,15 @@
                                 {% if category.category_id|stringformat:"s" == search_category_id %}selected{% endif %}>{{ category.category_name }}</option>
                     {% endfor %}
                 </select>
+
+
+
                 <div class="form-check text-nowrap">
                     <input type="checkbox"
                            name="show_all"
                            id="show-all-products"
                            class="form-check-input"
+                           onchange="this.form.submit()"
                            {% if show_all %}checked{% endif %}>
                     <label class="form-check-label" for="show-all-products">Show all products</label>
                 </div>
@@ -81,6 +96,8 @@
         <thead class="table-secondary">
             <tr>
                 <th class="py-2">Product Name</th>
+                <th class="py-2">Supplier</th>
+                <th class="py-2">Category</th> 
                 <th class="py-2 text-end">Unit Price</th>
                 <th class="py-2 text-end">Units In Stock</th>
                 <th class="py-2 text-center">Discontinued</th>
@@ -93,8 +110,22 @@
             {% for product in products %}
                 <tr>
                     <td><a href="{% url 'djtraders:product_detail' product.product_id %}">{{ product.product_name }}</a></td>
+                    <td>{{ product.supplier.company_name|default:"—" }}</td>
+                    <td>{{ product.category.category_name|default:"—" }}</td>
                     <td class="text-end">{% if product.unit_price is not None %}${{ product.unit_price|floatformat:2|intcomma }}{% else %}—{% endif %}</td>
-                    <td class="text-end">{{ product.units_in_stock }}</td>
+                    
+                    <td class="text-end">
+                        {{ product.units_in_stock }}
+                        {% if product.units_in_stock < 10 %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                Low Stock
+                            </span>
+                        {% endif %}
+                    </td>
+                    
+                    
+                   
                     <td class="text-center">{{ product.is_discontinued|yesno:"Yes,No" }}</td>
                     <td class="text-center">
                         <a href="{% url 'djtraders:product_detail' product.product_id %}"

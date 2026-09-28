@@ -42,7 +42,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from .forms import CustomerEditForm, OrderCommitForm, OrderDetailForm, default_required_date, default_shipped_date
-from .models import Category, Customer, Employee, Order, OrderDetail, Product
+from .models import Category, Customer, Employee, Order, OrderDetail, Product, Supplier
 
 
 def _own_customer_redirect(request, customer_id):
@@ -227,22 +227,28 @@ def product_list(request):
     """
     search_product_name = request.GET.get("product_name", "")
     search_category_id = request.GET.get("category", "")
+    search_supplier_id = request.GET.get("supplier", "")
     show_all = request.GET.get("show_all") == "on"
 
     products = Product.search(
         product_name=search_product_name,
         category_id=search_category_id,
+        supplier_id=search_supplier_id,
         show_all=show_all,
     )
 
     # Every category on record, for the search dropdown.
     categories = Category.objects.order_by("category_name")
+    suppliers = Supplier.objects.order_by("company_name")
+
 
     context = {
         "products": products,
         "categories": categories,
+        "suppliers": suppliers,
         "search_product_name": search_product_name,
         "search_category_id": search_category_id,
+        "search_supplier_id": search_supplier_id,
         "show_all": show_all,
     }
     return render(request, "djtraders/product_list.html", context)
@@ -258,15 +264,33 @@ def product_detail(request, product_id):
     (djtraders/models.py) rather than computed here.
     """
     product = get_object_or_404(Product, pk=product_id)
+    show_all_supplier_products = request.GET.get("show_all_supplier_products") == "on"
 
     # product.orderdetail_set is OrderDetail's reverse FK accessor --
     # every order line this product appears on. select_related("order")
     # fetches each line's Order via a JOIN, since the template needs
     # order.order_date/order_id for every row.
     order_lines = product.orderdetail_set.select_related("order").order_by("-order__order_date")
-    context = {"product": product, "order_lines": order_lines}
-    return render(request, "djtraders/product_detail.html", context)
 
+    if show_all_supplier_products:
+        supplier_products = product.supplier.product_set.exclude(
+            product_id=product.product_id
+        )
+    else:
+        supplier_products = product.supplier.product_set.filter(
+            discontinued=0
+        ).exclude(
+            product_id=product.product_id
+        )
+        
+    context = {
+        "product": product,
+        "order_lines": order_lines,
+        "supplier_products": supplier_products,
+        "show_all_supplier_products": show_all_supplier_products,
+    }
+    return render(request, "djtraders/product_detail.html", context)
+    
 
 def customer_detail(request, customer_id):
     """
