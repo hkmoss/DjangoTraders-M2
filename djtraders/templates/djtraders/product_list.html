@@ -123,15 +123,27 @@
                             </span>
                         {% endif %}
                     </td>
-                    
-                    
-                   
+                                
                     <td class="text-center">{{ product.is_discontinued|yesno:"Yes,No" }}</td>
                     <td class="text-center">
                         <a href="{% url 'djtraders:product_detail' product.product_id %}"
                            title="View product">
                             <i class="fa-solid fa-eye dt-icon-supplier"></i>
                         </a>
+
+                        <a href="{% url 'djtraders:product_edit' product.product_id %}"
+                        title="Edit product">
+                            <i class="fa-solid fa-pen fa-lg dt-icon-warning"></i>
+                        </a>
+
+                        <a href="{% url 'djtraders:product_edit' product.product_id %}?confirm_delete=1"
+                        title="Delete product"
+                        class="texter">
+                            <i class="fa-solid fa-trash fa-lg dt-icon-danger"></i>
+                        </a>
+
+                    </td>                        
+
                     </td>
                 </tr>
             {% endfor %}

@@ -41,7 +41,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from .forms import CustomerEditForm, OrderCommitForm, OrderDetailForm, default_required_date, default_shipped_date
+from .forms import CustomerEditForm, ProductEditForm, OrderCommitForm, OrderDetailForm, default_required_date, default_shipped_date
 from .models import Category, Customer, Employee, Order, OrderDetail, Product, Supplier
 
 
@@ -291,6 +291,121 @@ def product_detail(request, product_id):
     }
     return render(request, "djtraders/product_detail.html", context)
     
+
+def product_edit(request, product_id):
+    """
+    Same edit as product_edit_form above, built the Django Form way
+    instead: ProductEditForm (djtraders/forms.py) declares the fields/
+    widgets once as a class, request.POST is bound to it and checked
+    with form.is_valid() instead of hand-validating each field, and
+    form.save() writes every validated field onto the Product instance
+    at once -- no manual field-by-field assignment. company_name being
+    required is enforced automatically here (a ModelForm reads that off
+    the model field itself), not by an explicit check like
+    product_edit_form above has to do.
+
+    product_edit.html renders the form with django-crispy-forms'
+    {% crispy %} tag instead of hand-written <input> tags -- same fields
+    and access rule as product_edit_form (_product_edit_denied,
+    above), different rendering approach, to compare the two side by
+    side.
+    """
+    product = get_object_or_404(Product, pk=product_id)
+
+    if not request.session.get("current_user"):
+        return redirect("djtraders:product_detail", product_id=product.product_id)
+
+    if request.method == "POST":
+        form = ProductEditForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect("djtraders:product_detail", product_id=product.product_id)
+    else:
+        form = ProductEditForm(instance=product)
+
+    # confirm_delete=1 (product_list.html's Delete icon) shows an
+    # in-page "are you sure?" prompt instead of the edit form -- see
+    # product_edit.html. Its own Confirm button is a real POST to
+    # product_delete, not a browser confirm() popup (see CLAUDE.md).
+    confirm_delete = request.GET.get("confirm_delete") == "1"
+
+    context = {"product": product, "form": form, "confirm_delete": confirm_delete}
+    return render(request, "djtraders/product_edit.html", context)
+
+
+def product_create(request):
+    """
+    "Create Empty and Edit": renders the exact same page as
+    product_edit above -- same template, same ProductEditForm, same
+    field grid -- for a Product that doesn't exist in the database yet,
+    and writes it to the database exactly once, only when Save is
+    actually clicked. Employee-only, same as product_delete; a product
+    edits their own existing record but never creates a new one.
+
+    GET builds a blank, unsaved Product() and hands it to
+    ProductEditForm/product_edit.html with new_product=True in the
+    context, so that template can tell "New Product" from "Edit
+    <existing product>" and point its own Cancel link at product_list
+    instead of a product_detail page that doesn't exist yet. Clicking
+    Cancel from here is a plain link, not a form submission -- nothing
+    was ever saved, so there's nothing to undo or delete.
+
+    POST validates the submitted fields through that same form -- no
+    different from product_edit's own POST handling above, since
+    product_id was never one of ProductEditForm's fields to begin
+    with (djtraders/forms.py). Only on success does this view do the two
+    things product_edit's POST never has to: ask
+    Product.generate_product_id (djtraders/models.py) to invent a new,
+    unique product_id from the now-validated product_name -- a product
+    never picks or types their own ID -- and redirect to product_list
+    rather than product_detail, so the employee who just created this
+    product sees it appear in the roster right away.
+    """
+    if not request.session.get("current_user"):
+        return redirect("djtraders:product_list")
+
+    if request.method == "POST":
+        # instance=Product() -- an unsaved, blank row -- so is_valid()
+        # runs the exact same field checks product_edit's POST runs
+        # against an existing product.
+        form = ProductEditForm(request.POST, instance=Product())
+        if form.is_valid():
+            # Only generated once everything else has already passed
+            # validation -- generate_product_id needs a real,
+            # validated product_name to build a sensible ID from.
+                        
+            highest_product = Product.objects.order_by("-product_id").first()
+
+            if highest_product:
+                form.instance.product_id = highest_product.product_id + 1
+            else:
+                form.instance.product_id = 1 
+            form.instance.discontinued = 0
+            form.save()
+            return redirect("djtraders:product_list")
+    else:
+        form = ProductEditForm(instance=Product())
+
+    context = {"product": form.instance, "form": form, "new_product": True}
+    return render(request, "djtraders/product_edit.html", context)
+
+
+
+def product_delete(request, product_id):
+
+    if not request.session.get("current_user"):
+        return redirect("djtraders:product_list")
+
+    if request.method == "POST":
+        product = get_object_or_404(Product, pk=product_id)
+
+        product.discontinued = 1
+        product.date_discontinued = timezone.now().date()
+
+        product.save()
+
+    return redirect("djtraders:product_list")
+
 
 def customer_detail(request, customer_id):
     """

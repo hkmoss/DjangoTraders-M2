@@ -1,0 +1,79 @@
+<!--
+ copied from customer_edit.html and modified to use crispy forms instead of a hand-coded form
+-->
+
+{% extends "common/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if new_product %}New Product{% else %}Edit {{ product.product_name }}{% endif %}{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card mt-4 border-0 shadow-sm">
+                <div class="card-header fw-bolder h4">
+                    {% if new_product %}
+                        <i class="fa-solid fa-box-open dt-icon"></i>
+                        New Product
+                    {% else %}
+                        <i class="fa-solid fa-pen-to-square dt-icon"></i>
+                        Edit {{ product.product_name }} (crispy form)
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if confirm_delete %}
+                        <!-- #region [WARNING] in-page confirmation, not a browser confirm() -->
+                        <!-- This project avoids browser confirm()/alert() dialogs (CLAUDE.md) --
+                             a customer's Delete click lands here instead of popping a dialog,
+                             so the "are you sure" question is a real, styled page the same way
+                             every other page in the project is, not a native browser popup. -->
+                        <!-- #endregion -->
+                        <div class="alert alert-danger">
+                            <h5 class="alert-heading">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                Deactivate {{ product.product_name }}?
+                            </h5>
+                            <p class="mb-3">
+                                This marks the product as discontinued rather than deleting it
+                                from the database. The product can still be viewed later through
+                                the Show All Products option.
+                            </p>
+                            <div class="d-flex">
+                                <form method="post"
+                                      action="{% url 'djtraders:product_delete' product.product_id %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn btn-outline-danger bg-white text-black w3-hover-shadow"
+                                            title="Confirm deactivation">
+                                        <i class="fa-solid fa-box-archive me-1"></i>
+                                        Yes, Discontinue Product
+                                    </button>
+                                </form>
+                                <div class="dt-link-wrap btn dt-btn-secondary-product w3-hover-shadow">
+                                    <a href="{% url 'djtraders:product_detail' product.product_id %}"
+                                       title="Cancel">
+                                        <i class="fa-solid fa-xmark me-1"></i>
+                                        Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% crispy form %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // ValidateCustomerEditForm (DjangoTraders.js) attaches a submit
+        // listener to #customer-edit-form specifically -- the
+        // confirm_delete branch's own <form> above has no such id, so
+        // calling this unconditionally is safe on both branches of this
+        // template without a conditional guard.
+        ValidateCustomerEditForm('#customer-edit-form');
+    </script>
+{% endblock %}
