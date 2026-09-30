@@ -966,8 +966,9 @@ def order_add_line(request, customer_id):
     cart_lines = _cart_lines(cart)
     line = next(line for line in cart_lines if line.product.product_id == product.product_id)
     row_html = render_to_string(
-        "djtraders/_order_line_row.html", {"line": line}, request=request
+        "djtraders/_order_line_row.html", {"line": line, "customer_id": customer_id, "product_id": product.product_id}
     )
+    
     cart_total = sum(line.line_total for line in cart_lines)
     return JsonResponse(
         {
@@ -994,6 +995,20 @@ def order_remove_line(request, customer_id, product_id):
     request.session.modified = True
 
     return redirect("djtraders:order_build", customer_id=customer_id)
+
+def order_clear_cart(request, customer_id):
+    if request.session.get("customer_id") != customer_id:
+        return redirect("djtraders:customer_list")
+
+    cart = request.session.get("cart")
+    if not cart or cart.get("customer_id") != customer_id:
+        return redirect("djtraders:customer_list")
+
+    cart["lines"] = {}
+    request.session.modified = True
+
+    return redirect("djtraders:order_build", customer_id=customer_id)
+
 
 
 def order_commit(request, customer_id):

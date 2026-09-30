@@ -137,9 +137,28 @@
                                 <div class="text-danger small">{{ commit_form.shipped_date.errors }}</div>
                             {% endif %}
                         </div>
-                        <button type="submit" class="btn dt-btn-primary-customer w3-hover-shadow w-100" title="Place this order">
-                            <i class="fa-solid fa-check me-1"></i>Commit Order
-                        </button>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'djtraders:order_clear_cart' customer.customer_id %}"
+                                class="btn btn-outline-danger w-100>
+                            
+                                <i class="fa-solid fa-trash-can me-1"></i>Clear Cart
+                            </a>
+
+                            <button type="submit"
+                                    class="btn dt-btn-primary-customer w3-hover-shadow w-100"
+                                    title="Place this order">
+                                <i class="fa-solid fa-check me-1"></i>Commit Order
+                            </button>
+                        </div>
+                    
+                    
                     </form>
                 </div>
             </div>

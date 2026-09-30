@@ -136,6 +136,11 @@ order_remove_line_url = path(
     "customers/<str:customer_id>/orders/remove-line/<str:product_id>/", views.order_remove_line, name="order_remove_line",
 )
 
+order_clear_cart_url = path(
+    "customers/<str:customer_id>/orders/clear-cart/", views.order_clear_cart, name="order_clear_cart",
+)
+
+
 # POST /djtraders/customers/<customer_id>/orders/commit/ -> views.order_commit
 order_commit_url = path(
     "customers/<str:customer_id>/orders/commit/", views.order_commit, name="order_commit"
@@ -177,6 +182,7 @@ urlpatterns = [
     order_build_url,
     order_add_line_url,
     order_remove_line_url,
+    order_clear_cart_url,
     order_commit_url,
     order_delete_url,
 ]
