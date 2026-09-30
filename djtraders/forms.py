@@ -270,7 +270,7 @@ class ProductEditForm(forms.ModelForm):
                     <button type="submit"
                             class="btn dt-btn-primary-product w3-hover-shadow"
                             title="Save changes">
-                        <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                        <i class="fa-solid fa-floppy-disk me-1 text-success"></i>Save
                     </button>
                 </div>
                 """
