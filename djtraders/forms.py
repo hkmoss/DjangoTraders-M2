@@ -264,17 +264,27 @@ class ProductEditForm(forms.ModelForm):
                 Column("supplier", css_class="col-md-4"),
                 Column("category", css_class="col-md-4"),
             ),
-            HTML(
-                """
+        HTML(
+            """
                 <div class="d-flex gap-2 mt-3 justify-content-end">
-                    <button type="submit"
-                            class="btn dt-btn-primary-product w3-hover-shadow"
-                            title="Save changes">
-                        <i class="fa-solid fa-floppy-disk me-1 text-success"></i>Save
+                    <button type="submit" class="btn dt-btn-primary-customer w3-hover-shadow" title="Save changes">
+                        <i class="fa-solid fa-floppy-disk me-1 dt-icon-success"></i>Save
                     </button>
+                    <div class="btn dt-btn-secondary-customer w3-hover-shadow">
+                        {% if new_product %}
+                            <a href="{% url 'djtraders:product_list' %}" title="Cancel -- nothing has been saved yet">
+                                <i class="fa-solid fa-xmark me-1 dt-icon-danger"></i>Cancel
+                            </a>
+                        {% else %}
+                            <a href="{% url 'djtraders:product_detail' product.product_id %}" title="Cancel and discard changes">
+                                <i class="fa-solid fa-xmark me-1 dt-icon-danger"></i>Cancel
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
-                """
-            ),
+
+            """
+        ),
         )
 
 
