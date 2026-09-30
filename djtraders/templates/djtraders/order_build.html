@@ -53,11 +53,12 @@
                             <th class="text-end">Quantity</th>
                             <th class="text-end">Discount</th>
                             <th class="text-end">Line Total</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="order-lines-body">
                         {% for line in cart_lines %}
-                            {% include "djtraders/_order_line_row.html" %}
+                            {% include "djtraders/_order_line_row.html" with customer_id=customer.customer_id line=line %}
                         {% empty %}
                             <tr id="order-lines-empty-row">
                                 <td colspan="5">Your cart is empty -- add a product below.</td>

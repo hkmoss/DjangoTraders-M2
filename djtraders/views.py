@@ -978,6 +978,23 @@ def order_add_line(request, customer_id):
         }
     )
 
+def order_remove_line(request, customer_id, product_id):
+    if request.session.get("customer_id") != customer_id:
+        return redirect("djtraders:customer_list")
+
+    cart = request.session.get("cart")
+    if not cart or cart.get("customer_id") != customer_id:
+        return redirect("djtraders:customer_list")
+
+    product_key = str(product_id)
+
+    if product_key in cart["lines"]:
+        del cart["lines"][product_key]
+
+    request.session.modified = True
+
+    return redirect("djtraders:order_build", customer_id=customer_id)
+
 
 def order_commit(request, customer_id):
     """

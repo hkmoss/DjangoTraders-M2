@@ -16,4 +16,9 @@
     <td class="text-end">{{ line.quantity }}</td>
     <td class="text-end">{{ line.discount|floatformat:2 }}</td>
     <td class="text-end">${{ line.line_total|floatformat:2 }}</td>
+    <td class="text-center">
+        <a href="{% url 'djtraders:order_remove_line' customer_id=customer_id product_id=line.product.product_id %}">
+            <i class="fa-solid fa-trash-can dt-icon-danger"></i>
+        </a>
+    </td>
 </tr>
