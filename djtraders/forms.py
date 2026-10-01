@@ -247,6 +247,13 @@ class ProductEditForm(forms.ModelForm):
             "title": "Unit price cannot be negative.",
         })
 
+# Browser layer of the no-digits example for product_name. 
+
+        self.fields["product_name"].widget.attrs.update({
+            "pattern": r"[^0-9]*",
+            "title": "Product name may not contain numbers.",
+        })
+
         self.helper = FormHelper()
         self.helper.form_id = "product-edit-form"
         self.helper.layout = Layout(
@@ -308,6 +315,19 @@ class ProductEditForm(forms.ModelForm):
             raise ValidationError("Unit price cannot be negative.")
 
         return unit_price
+
+# Server layer of the no-digits example for product_name.  
+
+    def clean_product_name(self):
+        product_name = self.cleaned_data.get("product_name", "")
+
+        if any(char.isdigit() for char in product_name):
+            raise ValidationError(
+                "Product name may not contain numbers."
+            )
+
+        return product_name
+
 
 
 class OrderDetailForm(forms.ModelForm):

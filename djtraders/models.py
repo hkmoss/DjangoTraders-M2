@@ -43,6 +43,9 @@ class Category(models.Model):
         managed = False
         db_table = 'categories'
 
+    def __str__(self):
+        return self.category_name
+
 
 class Customer(models.Model):
     """A DjangoTraders customer. No foreign keys, so no on_delete concerns."""
@@ -456,3 +459,6 @@ class Supplier(models.Model):
     class Meta:
         managed = False
         db_table = 'suppliers'
+
+    def __str__(self):
+        return self.company_name
