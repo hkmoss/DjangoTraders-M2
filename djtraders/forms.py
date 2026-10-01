@@ -348,13 +348,18 @@ class OrderDetailForm(forms.ModelForm):
     clean_<field>(), since it depends on both product and quantity
     together.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, category_id="", **kwargs):
         super().__init__(*args, **kwargs)
         # Only non-discontinued products are offered -- same reasoning
         # as Product.search's own show_all=False default (models.py).
         self.fields["product"].queryset = self.fields["product"].queryset.filter(
             discontinued=0
         )
+        if category_id:
+            self.fields["product"].queryset = self.fields["product"].queryset.filter(
+                category_id=category_id
+           )
+
         self.fields["product"].empty_label = "Select a product..."
         self.fields["product"].widget.attrs.update({"class": "form-select"})
         # Product (models.py) has no __str__ of its own, so a plain

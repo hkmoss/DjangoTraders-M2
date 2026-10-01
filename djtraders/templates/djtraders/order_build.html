@@ -76,7 +76,25 @@
 
             <div class="card mb-3 border-0 shadow-sm">
                 <div class="card-header fw-bolder h4">Add to Cart</div>
-                <div class="card-body">
+             <div class="card-body">
+
+{% comment %} This adds the category filter to the order build page, allowing users to filter products by category before adding them to the cart.{% endcomment %}
+                
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-7">
+                            <label for="id_category" class="form-label">Category</label>
+                            <select name="category"  id="id_category" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.category_id }}"
+                                            {% if selected_category == category.category_id|stringformat:"s" %}selected{% endif %}>
+                                        {{ category.category_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>       
+
                     <form id="order-detail-form" method="post" action="{% url 'djtraders:order_add_line' customer.customer_id %}">
                         {% csrf_token %}
                         <div class="row g-3 align-items-end">
@@ -138,12 +156,7 @@
                             {% endif %}
                         </div>
                         
-                        
-                        
-                        
-                        
-                        
-                        
+                         
                         <div class="d-grid gap-2">
                             <a href="{% url 'djtraders:order_clear_cart' customer.customer_id %}"
                                 class="btn btn-outline-danger w-100>

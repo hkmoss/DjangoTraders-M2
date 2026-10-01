@@ -885,6 +885,10 @@ def order_build(request, customer_id):
 
     customer = get_object_or_404(Customer, pk=customer_id)
 
+    category_id = request.GET.get("category", "")
+    categories = Category.objects.order_by("category_name")
+
+
     cart = request.session.get("cart")
     if not cart or cart.get("customer_id") != customer_id:
         cart = {"customer_id": customer_id, "lines": {}}
@@ -892,7 +896,7 @@ def order_build(request, customer_id):
 
     cart_lines = _cart_lines(cart)
     cart_total = sum(line.line_total for line in cart_lines)
-    detail_form = OrderDetailForm()
+    detail_form = OrderDetailForm(category_id=category_id)
     # required_date/shipped_date default to a business-convention guess
     # (order_date, today at commit, plus two weeks / one week) but stay
     # real, editable fields on this form -- see OrderCommitForm/
@@ -910,6 +914,8 @@ def order_build(request, customer_id):
         "cart_total": cart_total,
         "detail_form": detail_form,
         "commit_form": commit_form,
+        "categories": categories,
+        "selected_category": category_id
     }
     return render(request, "djtraders/order_build.html", context)
 
