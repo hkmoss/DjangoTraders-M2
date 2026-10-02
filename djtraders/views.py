@@ -36,7 +36,7 @@ already-placed order on the same day it was placed.
 from types import SimpleNamespace
 
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, request
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -444,7 +444,8 @@ def customer_detail(request, customer_id):
 
     # "Start New Order" is self-service only -- only the logged-in
     # customer viewing their own page gets the button.
-    can_start_order = request.session.get("customer_id") == customer.customer_id
+    can_start_order = (request.session.get("current_user") or request.session.get("customer_id") == customer.customer_id
+)
 
     context = {
         "customer": customer,
@@ -842,7 +843,7 @@ def order_create(request, customer_id):
 
     Redirects straight into order_build to start adding line items.
     """
-    if request.session.get("customer_id") != customer_id:
+    if (not request.session.get("current_user") and request.session.get("customer_id") != customer_id):
         return redirect("djtraders:customer_detail", customer_id=customer_id)
 
     if request.method != "POST":
@@ -879,8 +880,8 @@ def order_build(request, customer_id):
     (re)started here, same as order_create -- this view alone is enough
     to reach a working cart page, even without ever visiting
     order_create first (e.g. a bookmarked or re-typed URL).
-    """
-    if request.session.get("customer_id") != customer_id:
+        """
+    if (not request.session.get("current_user") and request.session.get("customer_id") != customer_id):
         return redirect("djtraders:customer_detail", customer_id=customer_id)
 
     customer = get_object_or_404(Customer, pk=customer_id)
@@ -948,8 +949,11 @@ def order_add_line(request, customer_id):
     units_in_stock -- adding more than what's technically in stock is
     not refused here.
     """
-    if request.session.get("customer_id") != customer_id:
-        return JsonResponse({"success": False, "errors": {"__all__": ["Not allowed."]}}, status=403)
+    if (not request.session.get("current_user") and request.session.get("customer_id") != customer_id):
+        return JsonResponse(
+            {"success": False, "errors": {"__all__": ["Not allowed."]}},
+            status=403
+        )
 
     cart = request.session.get("cart")
     if not cart or cart.get("customer_id") != customer_id:
@@ -994,7 +998,7 @@ def order_add_line(request, customer_id):
     )
 
 def order_remove_line(request, customer_id, product_id):
-    if request.session.get("customer_id") != customer_id:
+    if (not request.session.get("current_user")and request.session.get("customer_id") != customer_id):
         return redirect("djtraders:customer_list")
 
     cart = request.session.get("cart")
@@ -1050,7 +1054,7 @@ def order_commit(request, customer_id):
     there is no employee-side access to someone else's session cart
     here, unlike order_detail/order_delete's own _order_access_denied.
     """
-    if request.session.get("customer_id") != customer_id:
+    if (not request.session.get("current_user") and request.session.get("customer_id") != customer_id):
         return redirect("djtraders:customer_detail", customer_id=customer_id)
 
     if request.method != "POST":
