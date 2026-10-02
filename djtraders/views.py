@@ -896,6 +896,7 @@ def order_build(request, customer_id):
 
     cart_lines = _cart_lines(cart)
     cart_total = sum(line.line_total for line in cart_lines)
+    product_stock = {product.product_id: product.units_in_stock for product in Product.objects.filter(discontinued=0)}
     detail_form = OrderDetailForm(category_id=category_id)
     # required_date/shipped_date default to a business-convention guess
     # (order_date, today at commit, plus two weeks / one week) but stay
@@ -915,7 +916,8 @@ def order_build(request, customer_id):
         "detail_form": detail_form,
         "commit_form": commit_form,
         "categories": categories,
-        "selected_category": category_id
+        "selected_category": category_id,
+        "product_stock": product_stock
     }
     return render(request, "djtraders/order_build.html", context)
 
@@ -1069,6 +1071,39 @@ def order_commit(request, customer_id):
         order.ship_postal_code = customer.postal_code
         order.ship_country = customer.country
 
+        stock_errors = []
+
+        for line in cart_lines:
+            product = Product.objects.get(pk=line.product.product_id)
+
+            if (
+                product.units_in_stock is not None
+                and line.quantity > product.units_in_stock
+            ):
+                stock_errors.append(
+                    f"{product.product_name}: only "
+                    f"{product.units_in_stock} units available."
+                )
+
+        if stock_errors:
+            return render(
+                request,
+                "djtraders/order_build.html",
+                {
+                    "customer": customer,
+                    "cart_lines": cart_lines,
+                    "cart_total": sum(line.line_total for line in cart_lines),
+                    "detail_form": OrderDetailForm(category_id=""),
+                    "commit_form": form,
+                    "categories": Category.objects.order_by("category_name"),
+                    "selected_category": "",
+                    "product_stock": {
+                        product.product_id: product.units_in_stock
+                        for product in Product.objects.filter(discontinued=0)
+                    },
+                },
+            )
+        
         with transaction.atomic():
             order.save()
             OrderDetail.objects.bulk_create(

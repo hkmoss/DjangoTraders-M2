@@ -390,6 +390,28 @@ class OrderDetailForm(forms.ModelForm):
             raise ValidationError("Quantity must be at least 1.")
         return quantity
 
+    def clean(self):
+        """
+        Server-side stock validation. A cart line may not request more
+        units than the selected product currently has in stock.
+        """
+        cleaned_data = super().clean()
+
+        product = cleaned_data.get("product")
+        quantity = cleaned_data.get("quantity")
+
+        if (
+            product is not None
+            and quantity is not None
+            and product.units_in_stock is not None
+            and quantity > product.units_in_stock
+        ):
+            raise ValidationError(
+                f"Only {product.units_in_stock} units of {product.product_name} are currently in stock."
+            )
+
+        return cleaned_data
+
 
 class OrderCommitForm(forms.ModelForm):
     """

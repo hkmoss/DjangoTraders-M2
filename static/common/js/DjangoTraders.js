@@ -210,6 +210,7 @@ function ValidateCustomerEditForm(formId) {
     as an argument.
 */
 function AddOrderLineItem(formId) {
+ 
     const $form = $(formId);
     const $errorBox = $form.find("#order-detail-form-error");
 
@@ -228,6 +229,7 @@ function AddOrderLineItem(formId) {
         const $productSelect = $("#id_product");
         const productId = $productSelect.val();
         const quantity = parseInt($("#id_quantity").val(), 10);
+        const stock = productStock[productId];
 
         if (!productId) {
             showError("Select a product.");
@@ -237,7 +239,10 @@ function AddOrderLineItem(formId) {
             showError("Quantity must be at least 1.");
             return;
         }
-
+        if (stock !== undefined && quantity > stock) {
+            showError(`Only ${stock} units are currently in stock.`);
+            return;
+        }
         // Errors come back either as plain strings (order_add_line's own
         // access/state checks, views.py) or as {message, code} objects
         // (Django's form.errors.get_json_data(), for OrderDetailForm's
