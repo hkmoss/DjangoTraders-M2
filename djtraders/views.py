@@ -1085,6 +1085,9 @@ def order_commit(request, customer_id):
                     f"{product.units_in_stock} units available."
                 )
 
+        for error in stock_errors: form.add_error(None, error)
+        
+        
         if stock_errors:
             return render(
                 request,
@@ -1116,6 +1119,11 @@ def order_commit(request, customer_id):
                 )
                 for line in cart_lines
             )
+            
+            for line in cart_lines:
+                product = Product.objects.get(pk=line.product.product_id)
+                product.units_in_stock -= line.quantity
+                product.save()
 
         del request.session["cart"]
         return redirect("djtraders:customer_detail", customer_id=customer_id)
