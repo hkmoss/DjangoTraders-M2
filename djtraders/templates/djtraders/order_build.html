@@ -98,13 +98,18 @@
                     <form id="order-detail-form" method="post" action="{% url 'djtraders:order_add_line' customer.customer_id %}">
                         {% csrf_token %}
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 <label for="id_product" class="form-label">Product</label>
                                 {{ detail_form.product }}
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="id_quantity" class="form-label">Quantity</label>
                                 {{ detail_form.quantity }}
+                            </div>
+
+                            <div class="col-md-2">
+                                <label for="id_discount" class="form-label">Discount %</label>
+                                {{ detail_form.discount }}
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn dt-btn-primary-customer w3-hover-shadow w-100" title="Add to Cart">

@@ -348,38 +348,42 @@ class OrderDetailForm(forms.ModelForm):
     clean_<field>(), since it depends on both product and quantity
     together.
     """
-    def __init__(self, *args, category_id="", **kwargs):
+    def __init__(self, *args, category_id="", is_employee=False, **kwargs):
+        self.is_employee = is_employee
         super().__init__(*args, **kwargs)
+
         # Only non-discontinued products are offered -- same reasoning
         # as Product.search's own show_all=False default (models.py).
         self.fields["product"].queryset = self.fields["product"].queryset.filter(
             discontinued=0
         )
+
         if category_id:
             self.fields["product"].queryset = self.fields["product"].queryset.filter(
                 category_id=category_id
-           )
+            )
 
         self.fields["product"].empty_label = "Select a product..."
         self.fields["product"].widget.attrs.update({"class": "form-select"})
+
         # Product (models.py) has no __str__ of its own, so a plain
         # ModelChoiceField would render each <option> as the default
         # "Product object (5)" -- label_from_instance overrides that
         # per-choice display text (not the value actually submitted,
         # which is still just the product's pk) with something a
         # student picking from this dropdown can actually read.
-        self.fields["product"].label_from_instance = (
-            lambda product: f"{product.product_name} (${product.unit_price or 0:.2f})"
-        )
-        # Browser layer (courtesy): a real HTML5 min= on the rendered
-        # <input>, blocking an obviously-bad quantity (zero or negative)
-        # before a request is even sent. Not a guarantee -- same caveat
-        # as every other pattern= attribute in this file.
+        self.fields["product"].label_from_instance = (lambda product: f"{product.product_name} (${product.unit_price or 0:.2f})")
         self.fields["quantity"].widget.attrs.update({"min": 1, "class": "form-control"})
-
+    
     class Meta:
         model = OrderDetail
-        fields = ["product", "quantity"]
+        fields = ["product", "quantity", "discount"]
+
+        widgets = {
+            "discount": forms.NumberInput(
+                attrs={"min": 0, "max": 10, "step": 0.01, "class": "form-control"}
+            )
+        }
 
     def clean_quantity(self):
         """
@@ -389,6 +393,22 @@ class OrderDetailForm(forms.ModelForm):
         if quantity is not None and quantity < 1:
             raise ValidationError("Quantity must be at least 1.")
         return quantity
+
+    def clean_discount(self):
+        """
+        Server layer: discount has to be a number between 0 and 10.
+        """
+        discount = self.cleaned_data.get("discount")
+
+        if discount is not None and discount > 10:
+            raise ValidationError(
+                "Manager approval is required for discounts greater than 10%."
+            )
+
+        return discount
+
+
+
 
     def clean(self):
         """

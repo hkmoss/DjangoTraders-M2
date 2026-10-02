@@ -898,7 +898,7 @@ def order_build(request, customer_id):
     cart_lines = _cart_lines(cart)
     cart_total = sum(line.line_total for line in cart_lines)
     product_stock = {product.product_id: product.units_in_stock for product in Product.objects.filter(discontinued=0)}
-    detail_form = OrderDetailForm(category_id=category_id)
+    detail_form = OrderDetailForm(category_id=category_id, is_employee=request.user.is_staff)
     # required_date/shipped_date default to a business-convention guess
     # (order_date, today at commit, plus two weeks / one week) but stay
     # real, editable fields on this form -- see OrderCommitForm/
@@ -962,7 +962,7 @@ def order_add_line(request, customer_id):
             status=400,
         )
 
-    form = OrderDetailForm(request.POST)
+    form = OrderDetailForm(request.POST, is_employee=request.user.is_staff)
     if not form.is_valid():
         # get_json_data(), not the bare ErrorDict form.errors itself --
         # Django's own error objects aren't directly JSON-serializable;
@@ -972,6 +972,9 @@ def order_add_line(request, customer_id):
 
     product = form.cleaned_data["product"]
     quantity = form.cleaned_data["quantity"]
+    discount = form.cleaned_data.get("discount", 0)
+
+
 
     product_key = str(product.product_id)
     cart["lines"][product_key] = cart["lines"].get(product_key, 0) + quantity
