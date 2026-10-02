@@ -459,10 +459,18 @@ class OrderCommitForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        fields = ["employee", "required_date", "shipped_date"]
+        fields = ["employee", "required_date", "shipped_date", "ship_name", "ship_address", "ship_city",
+            "ship_region", "ship_postal_code", "ship_country",
+        ]
         widgets = {
             "required_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "shipped_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "ship_name": forms.TextInput(attrs={"class": "form-control"}),
+            "ship_address": forms.TextInput(attrs={"class": "form-control"}),
+            "ship_city": forms.TextInput(attrs={"class": "form-control"}),
+            "ship_region": forms.TextInput(attrs={"class": "form-control"}),
+            "ship_postal_code": forms.TextInput(attrs={"class": "form-control"}),
+            "ship_country": forms.TextInput(attrs={"class": "form-control"}),
         }
 
     def clean(self):
@@ -480,11 +488,9 @@ class OrderCommitForm(forms.ModelForm):
                 self.add_error(field_name, f"{label} can't be before today's order date.")
         return cleaned_data
 
-
 def default_required_date():
     """order_date (today, at commit) + 2 weeks -- see OrderCommitForm."""
     return date.today() + timedelta(weeks=2)
-
 
 def default_shipped_date():
     """order_date (today, at commit) + 1 week -- see OrderCommitForm."""

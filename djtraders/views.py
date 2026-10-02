@@ -906,6 +906,12 @@ def order_build(request, customer_id):
         initial={
             "required_date": default_required_date(),
             "shipped_date": default_shipped_date(),
+            "ship_name": customer.company_name,
+            "ship_address": customer.address,
+            "ship_city": customer.city,
+            "ship_region": customer.region,
+            "ship_postal_code": customer.postal_code,
+            "ship_country": customer.country,
         }
     )
 
@@ -1064,12 +1070,7 @@ def order_commit(request, customer_id):
         order = form.save(commit=False)
         order.customer = customer
         order.order_date = timezone.now().date()
-        order.ship_name = customer.company_name
-        order.ship_address = customer.address
-        order.ship_city = customer.city
-        order.ship_region = customer.region
-        order.ship_postal_code = customer.postal_code
-        order.ship_country = customer.country
+
 
         stock_errors = []
 

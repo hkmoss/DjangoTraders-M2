@@ -125,6 +125,9 @@
                     {% if commit_form.non_field_errors %}
                         <div class="alert alert-danger">{{ commit_form.non_field_errors }}</div>
                     {% endif %}
+                    
+                    
+                    {% comment %}
                     <div class="mb-3">
                         <div class="form-label mb-1">Shipping To</div>
                         <div class="border rounded p-2 bg-light">
@@ -132,8 +135,41 @@
                             <div>{{ customer.formatted_address }}</div>
                         </div>
                     </div>
+                    {% endcomment %}
+
                     <form method="post" action="{% url 'djtraders:order_commit' customer.customer_id %}">
                         {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Ship Name</label>
+                            {{ commit_form.ship_name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ship Address</label>
+                            {{ commit_form.ship_address }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ship City</label>
+                            {{ commit_form.ship_city }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ship Region</label>
+                            {{ commit_form.ship_region }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ship Postal Code</label>
+                            {{ commit_form.ship_postal_code }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ship Country</label>
+                            {{ commit_form.ship_country }}
+                        </div>
+
                         <div class="mb-3">
                             <label for="{{ commit_form.employee.id_for_label }}" class="form-label">Employee</label>
                             {{ commit_form.employee }}
