@@ -272,7 +272,8 @@ function AddOrderLineItem(formId) {
                 $("#order-lines-body").append(response.row_html);
             }
             $("#order-total").text("$" + response.order_total);
-            $("#id_quantity").val(1);
+            $("#id_quantity").val("");
+            $("#id_discount").val("");
             $productSelect.val("");
         }).fail(function (xhr) {
             // A validation failure (order_add_line's own 400/403 JsonResponse,

@@ -374,6 +374,8 @@ class OrderDetailForm(forms.ModelForm):
         # student picking from this dropdown can actually read.
         self.fields["product"].label_from_instance = (lambda product: f"{product.product_name} (${product.unit_price or 0:.2f})")
         self.fields["quantity"].widget.attrs.update({"min": 1, "class": "form-control"})
+        if "discount" in self.fields: 
+            self.fields["discount"].required = False
     
     class Meta:
         model = OrderDetail

@@ -783,7 +783,7 @@ def employee_detail(request, employee_id):
 
 def _cart_lines(cart):
     """
-    Turns a session cart's "lines" dict ({str(product_id): quantity}, no
+    Turns a session cart's "lines" dict ({str(product_id): {"quantity": quantity, "discount": discount}}, no
     database row backing any of it) into a list of lightweight,
     OrderDetail-shaped objects: .product, .unit_price, .quantity,
     .discount, .line_total. A plain types.SimpleNamespace, not a real
@@ -792,7 +792,7 @@ def _cart_lines(cart):
     running total can be built exactly the same way as when these are
     real rows, with no template changes needed either way.
 
-    discount is always 0.0 here -- nothing on this page collects one.
+    discount is stored in the session cart and 
     unit_price is each product's *current* price, looked up fresh every
     time this runs (including at commit), not frozen at the moment a
     line was added -- there's nothing to freeze it onto before an Order
@@ -806,7 +806,13 @@ def _cart_lines(cart):
     products_by_id = Product.objects.in_bulk(product_ids)
 
     lines = []
-    for product_id_str, quantity in cart.get("lines", {}).items():
+    for product_id_str, line_data in cart.get("lines", {}).items():
+        if isinstance(line_data, int):
+            quantity = line_data
+            discount = 0
+        else:
+            quantity = line_data.get("quantity", 0)
+            discount = line_data.get("discount", 0)
         product = products_by_id.get(int(product_id_str))
         if product is None:
             continue
@@ -816,8 +822,8 @@ def _cart_lines(cart):
                 product=product,
                 unit_price=unit_price,
                 quantity=quantity,
-                discount=0.0,
-                line_total=unit_price * quantity,
+                discount=discount,
+                line_total=unit_price * quantity * (1 - discount),
             )
         )
     return lines
@@ -972,12 +978,18 @@ def order_add_line(request, customer_id):
 
     product = form.cleaned_data["product"]
     quantity = form.cleaned_data["quantity"]
-    discount = form.cleaned_data.get("discount", 0)
-
-
+    discount = (form.cleaned_data.get("discount") or 0) / 100  # convert percentage to decimal
 
     product_key = str(product.product_id)
-    cart["lines"][product_key] = cart["lines"].get(product_key, 0) + quantity
+    existing_line = cart["lines"].get(
+        product_key,
+        {"quantity": 0, "discount": 0}
+    )
+
+    cart["lines"][product_key] = {
+    "quantity": existing_line["quantity"] + quantity,
+    "discount": discount,
+}
     # Session middleware only notices a *replaced* top-level key by
     # default -- mutating cart["lines"] in place (as just above) doesn't
     # trigger that on its own, so this has to be set explicitly or the
