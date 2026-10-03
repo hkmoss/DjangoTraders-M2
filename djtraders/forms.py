@@ -355,8 +355,9 @@ class OrderDetailForm(forms.ModelForm):
         # Only non-discontinued products are offered -- same reasoning
         # as Product.search's own show_all=False default (models.py).
         self.fields["product"].queryset = self.fields["product"].queryset.filter(
-            discontinued=0
-        )
+            discontinued=0,
+            units_in_stock__gt=0 
+        ).order_by("product_name")
 
         if category_id:
             self.fields["product"].queryset = self.fields["product"].queryset.filter(
