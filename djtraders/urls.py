@@ -27,6 +27,8 @@ to the database, so there's no Order row yet to key a URL by. order_
 detail/order_delete act on a real, already-placed Order row, so they
 stay keyed by order_id.
 """
+from os import name
+
 from django.urls import path
 
 from . import views
@@ -112,6 +114,11 @@ customer_delete_url = path(
     "customers/<str:customer_id>/delete/", views.customer_delete, name="customer_delete"
 )
 
+# POST /djtraders/customers/<customer_id>/reactivate/ -> views.customer_reactivate
+customer_reactivate_url = path(
+    "customers/<str:customer_id>/reactivate/", views.customer_reactivate, name="customer_reactivate"
+)
+
 # <int:employee_id> -- Employee.employee_id is an integer PK.
 employee_detail_url = path(
     "employees/<int:employee_id>/", views.employee_detail, name="employee_detail"
@@ -178,6 +185,7 @@ urlpatterns = [
     customer_edit_url,
     employee_detail_url,
     customer_delete_url,
+    customer_reactivate_url,
     order_create_url,
     order_build_url,
     order_add_line_url,

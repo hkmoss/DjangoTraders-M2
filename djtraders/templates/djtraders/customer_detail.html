@@ -30,8 +30,10 @@
                     <span class="badge dt-status-inactive">
                         <i class="fa-solid fa-user-slash"></i> Inactive
                     </span>
+                           
                 {% endif %}
             </h1>
+ 
         </div>
 
         <div class="d-flex">
@@ -56,6 +58,17 @@
                         Edit
                     </a>
                 </div>
+                    {% if customer.inactive_date %}
+                    <form method="post" action="{% url 'djtraders:customer_reactivate' customer.customer_id %}">
+                    {% csrf_token %}
+                        <button type="submit"
+                        class="btn dt-btn-primary-customer w3-hover-shadow">
+                        <i class="fa-solid fa-user-check me-1"></i>
+                        Reactivate
+                        </button>
+                    </form>   
+                
+                    {% endif %}
             {% endif %}
             <!-- #region [WHY] hiding Back to Customers for a logged-in customer -->
             <!--

@@ -617,6 +617,21 @@ def customer_delete(request, customer_id):
     return redirect("djtraders:customer_list")
 
 
+def customer_reactivate(request, customer_id):
+    """
+    Reactivates a customer by clearing inactive_date.
+    """
+    if not request.session.get("current_user"):
+        return redirect("djtraders:customer_list")
+
+    if request.method == "POST":
+        customer = get_object_or_404(Customer, pk=customer_id)
+        customer.inactive_date = None
+        customer.save()
+
+    return redirect("djtraders:customer_list")
+
+
 def order_detail(request, order_id):
     """
     Display a single order: who placed it, who processed/shipped it, and
