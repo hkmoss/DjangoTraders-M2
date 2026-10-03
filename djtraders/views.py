@@ -447,12 +447,16 @@ def customer_detail(request, customer_id):
     can_start_order = (request.session.get("current_user") or request.session.get("customer_id") == customer.customer_id
 )
 
+    cart = request.session.get("cart", {})
+    cart_count = len(cart.get("lines", {}))
+    
     context = {
         "customer": customer,
         "total_quantity": total_quantity,
         "total_revenue": total_revenue,
         "orders": orders,
         "can_start_order": can_start_order,
+        "cart_count": cart_count,
     }
     return render(request, "djtraders/customer_detail.html", context)
 
