@@ -449,6 +449,7 @@ def customer_detail(request, customer_id):
 
     cart = request.session.get("cart", {})
     cart_count = len(cart.get("lines", {}))
+
     
     context = {
         "customer": customer,
@@ -998,6 +999,7 @@ def order_add_line(request, customer_id):
     product = form.cleaned_data["product"]
     quantity = form.cleaned_data["quantity"]
     discount = (form.cleaned_data.get("discount") or 0) / 100  # convert percentage to decimal
+    if quantity >= 10: discount = 0.10
 
     product_key = str(product.product_id)
     existing_line = cart["lines"].get(
@@ -1060,8 +1062,6 @@ def order_clear_cart(request, customer_id):
     request.session.modified = True
 
     return redirect("djtraders:order_build", customer_id=customer_id)
-
-
 
 def order_commit(request, customer_id):
     """
