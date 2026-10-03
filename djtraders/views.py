@@ -448,7 +448,14 @@ def customer_detail(request, customer_id):
 )
 
     cart = request.session.get("cart", {})
-    cart_count = len(cart.get("lines", {}))
+
+    if cart.get("customer_id") == customer.customer_id:
+        cart_count = sum(
+            line.get("quantity", 0)
+            for line in cart.get("lines", {}).values()
+        )
+    else:
+        cart_count = 0
 
     
     context = {

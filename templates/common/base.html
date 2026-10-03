@@ -97,6 +97,15 @@
                                     <i class="fa-solid fa-user me-1"></i>
                                     {{ current_customer.company_name }}
                               </span>
+                                    {% if cart_count > 0 %}
+                                          <a href="{% url 'djtraders:order_build' current_customer.customer_id %}">
+                                               <span class="badge bg-danger" style="cursor:pointer;">
+                                                      <i class="fa-solid fa-cart-shopping me-1"></i>
+                                                      {{ cart_count }}
+                                                </span>
+                                    </a>
+                              {% endif %}
+
                               <div class="dt-link-wrap btn btn-sm dt-btn-secondary-customer w3-hover-shadow">
                                     <a href="{% url 'djtraders:customer_logout' %}" title="Log out">
                                           <i class="fa-solid fa-right-from-bracket me-1"></i>

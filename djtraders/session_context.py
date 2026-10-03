@@ -49,3 +49,20 @@ def current_customer(request):
     customer_id = request.session.get("customer_id")
     customer = Customer.objects.filter(pk=customer_id).first() if customer_id else None
     return {"current_customer": customer}
+
+def cart_summary(request):
+    """
+    Makes the current cart item count available on every page.
+    """
+    cart = request.session.get("cart", {})
+
+    cart_count = sum(
+        line.get("quantity", 0)
+        for line in cart.get("lines", {}).values()
+    )
+
+    return {"cart_count": cart_count} 
+
+
+
+
