@@ -776,6 +776,62 @@ def customer_login_view(request):
     return render(request, "djtraders/customer_login.html", context)
 
 
+def supplier_login_view(request):
+    """
+    Supplier login: pick a supplier from a dropdown instead of typing a
+    supplier_id, mirroring the customer and employee login pattern.
+    The supplier_id itself is used as the password (see
+    Supplier.authenticate, djtraders/models.py).
+
+    On success, supplier_id goes into request.session under
+    "supplier_id" -- a separate session key from the employee login's
+    "current_user" and the customer login's "customer_id". The
+    supplier is then sent to their own supplier page.
+
+    Only one employee, customer, or supplier can be logged in at a
+    time -- landing on this page logs out whoever was previously
+    logged in before the form is shown.
+    """
+    request.session.pop("current_user", None)
+    request.session.pop("customer_id", None)
+    request.session.pop("supplier_id", None)
+
+    error = None
+
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier_id", "")
+        password = request.POST.get("password", "")
+        supplier = Supplier.authenticate(supplier_id, password)
+        if supplier is not None:
+            request.session["supplier_id"] = supplier.supplier_id
+            return redirect("djtraders:supplier_detail", supplier_id=supplier.supplier_id)
+        error = "Incorrect supplier/password combination."
+
+    suppliers = Supplier.objects.order_by("company_name")
+    context = {"suppliers": suppliers, "error": error }
+    return render(request, "djtraders/supplier_login.html", context)
+
+
+def supplier_detail(request, supplier_id):
+    """
+    Supplier landing page after a successful supplier login.
+
+    Displays only the products supplied by this supplier, forming the
+    basis for the reorder-request workflow in Extra Credit B. Access is
+    limited to the logged-in supplier's own page.
+    """
+    if request.session.get("supplier_id") != supplier_id:
+        return redirect("djtraders:supplier_login")
+    supplier = get_object_or_404(Supplier, pk=supplier_id)
+    products = Product.objects.filter(supplier_id=supplier_id).order_by("product_name")
+    context = {
+        "supplier": supplier,
+        "products": products,
+    }
+    return render(request, "djtraders/supplier_detail.html", context)
+
+
+
 def customer_logout_view(request):
     """
     Clears "customer_id" from the session, logging the customer out,

@@ -111,7 +111,7 @@ class Customer(models.Model):
         if country:
             queryset = queryset.filter(country=country)
         return queryset
-
+    
     @classmethod
     def authenticate(cls, customer_id, password):
         """
@@ -373,6 +373,20 @@ class Product(models.Model):
         """
         return bool(self.discontinued)
 
+    @property
+    def needs_reorder(self):
+        """
+        True when the current inventory plus the quantity already on
+        order is not enough to exceed the reorder level. Used by
+        supplier_detail.html's "Needs Reorder?" column.
+        """
+        stock = self.units_in_stock or 0
+        on_order = self.units_on_order or 0
+        reorder_level = self.reorder_level or 0
+
+        return stock + on_order <= reorder_level
+    
+
     @classmethod
     def search(cls, product_name="", category_id="", supplier_id="", show_all=False):
         """
@@ -425,6 +439,9 @@ class Product(models.Model):
         """
         return sum(line.quantity for line in self.orderdetail_set.all())
 
+
+
+
     class Meta:
         managed = False
         db_table = 'products'
@@ -456,9 +473,28 @@ class Supplier(models.Model):
     fax = models.CharField(max_length=24, blank=True, null=True)
     homepage = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.company_name
+
+    @classmethod
+    def authenticate(cls, supplier_id, password):
+        supplier = cls.objects.filter(pk=supplier_id).first()
+
+        if supplier and str(supplier.supplier_id) == password:
+            return supplier
+
+        return None
+    
+    @property
+    def formatted_address(self):
+        """
+        This supplier's address, city, region, postal_code, and country
+        joined into one line (blank ones skipped), instead of five
+        separate fields -- used by supplier_detail.html.
+        """
+        parts = [self.address, self.city, self.region, self.postal_code, self.country]
+        return ", ".join(part for part in parts if part)
+    
     class Meta:
         managed = False
         db_table = 'suppliers'
-
-    def __str__(self):
-        return self.company_name

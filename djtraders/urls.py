@@ -92,6 +92,14 @@ customer_login_url = path(
     "customer-login/", views.customer_login_view, name="customer_login"
 )
 
+# GET/POST /djtraders/suppliers/login/ -> views.supplier_login_view
+supplier_login_url = path("suppliers/login/", views.supplier_login_view, name="supplier_login",
+)
+
+# GET /djtraders/suppliers/<supplier_id>/ -> views.supplier_detail
+supplier_detail_url = path("suppliers/<int:supplier_id>/", views.supplier_detail, name="supplier_detail",
+)
+
 # GET /djtraders/customer-logout/ -> views.customer_logout_view
 customer_logout_url = path(
     "customer-logout/", views.customer_logout_view, name="customer_logout"
@@ -104,9 +112,7 @@ customer_edit_form_url = path(
 
 # GET/POST /djtraders/customers/<customer_id>/edit/ -> views.customer_edit
 customer_edit_url = path(
-    "customers/<str:customer_id>/edit/",
-    views.customer_edit,
-    name="customer_edit",
+    "customers/<str:customer_id>/edit/", views.customer_edit, name="customer_edit",
 )
 
 # POST /djtraders/customers/<customer_id>/delete/ -> views.customer_delete
@@ -193,4 +199,6 @@ urlpatterns = [
     order_clear_cart_url,
     order_commit_url,
     order_delete_url,
+    supplier_login_url,
+    supplier_detail_url,
 ]
