@@ -830,7 +830,29 @@ def supplier_detail(request, supplier_id):
     }
     return render(request, "djtraders/supplier_detail.html", context)
 
+def supplier_reorder(request, supplier_id, product_id):
+    """
+    Adds one reorder unit (20 units) to a supplier product that has
+    been flagged as needing reorder. Only the logged-in supplier may
+    request a reorder for their own products.
+    """
+    if request.session.get("supplier_id") != supplier_id:
+        return redirect("djtraders:supplier_login")
 
+    product = get_object_or_404(
+        Product,
+        pk=product_id,
+        supplier_id=supplier_id,
+    )
+
+    if product.needs_reorder:
+        product.units_on_order = (product.units_on_order or 0) + 20
+        product.save()
+
+    return redirect(
+        "djtraders:supplier_detail",
+        supplier_id=supplier_id,
+    )
 
 def customer_logout_view(request):
     """

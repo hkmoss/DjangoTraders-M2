@@ -100,6 +100,10 @@ supplier_login_url = path("suppliers/login/", views.supplier_login_view, name="s
 supplier_detail_url = path("suppliers/<int:supplier_id>/", views.supplier_detail, name="supplier_detail",
 )
 
+# POST /djtraders/suppliers/<supplier_id>/reorder/<product_id>/ -> views.supplier_reorder
+supplier_reorder_url = path("suppliers/<int:supplier_id>/reorder/<int:product_id>/", views.supplier_reorder, name="supplier_reorder",
+)
+
 # GET /djtraders/customer-logout/ -> views.customer_logout_view
 customer_logout_url = path(
     "customer-logout/", views.customer_logout_view, name="customer_logout"
@@ -201,4 +205,5 @@ urlpatterns = [
     order_delete_url,
     supplier_login_url,
     supplier_detail_url,
+    supplier_reorder_url
 ]

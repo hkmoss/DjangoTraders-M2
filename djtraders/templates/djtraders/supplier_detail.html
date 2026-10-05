@@ -153,7 +153,7 @@
             </div>
         </div>
         {% endcomment %}
-    </div>
+
 
     {% comment %}
     <div>
@@ -212,6 +212,7 @@
                 <th class="text-end">Reorder Level</th>
                 <th class="text-center">Discontinued</th>
                 <th class="text-center">Needs Reorder?</th>
+                <th class="text-center">Action</th>
             </tr>
         </thead>
 
@@ -224,6 +225,20 @@
                     <td class="text-end">{{ product.reorder_level }}</td>
                     <td class="text-center">{{ product.is_discontinued|yesno:"Yes,No" }}</td>
                     <td class="text-center">{{ product.needs_reorder|yesno:"Yes,No" }}</td>
+
+<td class="text-center">
+    {% if product.needs_reorder %}
+        <form method="post" action="{% url 'djtraders:supplier_reorder' supplier.supplier_id product.product_id %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="btn btn-sm dt-btn-primary-supplier w3-hover-shadow">
+                Request Reorder
+            </button>
+        </form>
+    {% else %}
+        —
+    {% endif %}
+</td>
                 </tr>
             {% empty %}
                 <tr>

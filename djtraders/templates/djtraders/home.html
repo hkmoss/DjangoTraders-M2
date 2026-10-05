@@ -51,7 +51,7 @@
     {# Row 2: Customers once logged in, or the two logins as alternatives when not. #}
     <div class="row m-3 g-3 justify-content-center">
         {% if current_employee or current_customer %}
-            <div class="col-md-3">
+            <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="card border-0 w3-hover-shadow">
                     <div class="dt-link-wrap card-body text-center">
                         <a href="{% url 'djtraders:customer_list' %}">
@@ -65,7 +65,7 @@
                 </div>
             </div>
         {% else %}
-            <div class="col-md-3">
+            <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="card border-0 w3-hover-shadow">
                     <div class="dt-link-wrap card-body text-center">
                         <a href="{% url 'djtraders:customer_login' %}"
@@ -79,6 +79,33 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="col-lg-3 col-md-4 col-sm-6">                
+                <div class="card border-0 w3-hover-shadow">
+                    <div class="dt-link-wrap card-body text-center">
+                        <a href="{% url 'djtraders:supplier_login' %}"
+                           title="Log in as a supplier">
+                            <i class="fa-solid fa-truck fa-2x dt-icon-supplier mb-2"></i> 
+                            <h5 class="card-title">Supplier Login</h5>
+                            <div class="card-text">
+                                Log in to view supplied products and submit reorder requests.                            
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
 
             <div class="col-md-3">
                 <div class="card border-0 w3-hover-shadow">
