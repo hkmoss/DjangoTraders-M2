@@ -810,7 +810,6 @@ def supplier_login_view(request):
     context = {"suppliers": suppliers, "error": error }
     return render(request, "djtraders/supplier_login.html", context)
 
-
 def supplier_detail(request, supplier_id):
     """
     Supplier landing page after a successful supplier login.
@@ -852,6 +851,17 @@ def supplier_reorder(request, supplier_id, product_id):
         "djtraders:supplier_detail",
         supplier_id=supplier_id,
     )
+
+
+def supplier_logout_view(request):
+    """
+    Clears "supplier_id" from the session, logging the supplier out,
+    then sends them back to the app home page -- same as logout_view
+    above, home always renders regardless of login state, landing them
+    back on the page with the login buttons showing again.
+    """
+    request.session.pop("supplier_id", None)
+    return redirect("djtraders:home")
 
 def customer_logout_view(request):
     """

@@ -113,6 +113,7 @@
                                     </a>
                               </div>
                         {% endif %}
+                        
                         {# current_employee (djtraders/session_context.py) is None when nobody's logged in. #}
                         {% if current_employee %}
                               <span class="dt-icon-employee">
@@ -126,8 +127,26 @@
                                     </a>
                               </div>
                         {% endif %}
+                        
+                        {% if current_supplier %}
+                              <span class="dt-icon-supplier">
+                                    <i class="fa-solid fa-truck me-1"></i>
+                                    {{ current_supplier.company_name }}
+                              </span>
+
+                              <div class="dt-link-wrap btn btn-sm dt-btn-secondary-supplier w3-hover-shadow">
+                                    <a href="{% url 'djtraders:supplier_logout' %}" title="Log out">
+                                          <i class="fa-solid fa-right-from-bracket me-1"></i>
+                                          Log Out
+                                    </a>
+                              </div>
+                        {% endif %}
+                        
+                        
+                        
+                        
                         {# Shown only when nobody's logged in at all -- product_list.html/product_detail.html are reachable without a login, so this is the only login entry point on those pages. #}
-                        {% if not current_customer and not current_employee %}
+                        {% if not current_customer and not current_employee and not current_supplier %}
                               <span class="text-muted small fst-italic">Not logged in</span>
                               <div class="dt-link-wrap btn btn-sm dt-btn-primary-customer w3-hover-shadow">
                                     <a href="{% url 'djtraders:customer_login' %}"

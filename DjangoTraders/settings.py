@@ -114,6 +114,7 @@ TEMPLATES = [
                 # current_customer (djtraders/session_context.py) to every
                 # template's context.
                 'djtraders.session_context.current_customer',
+                'djtraders.session_context.current_supplier',
                 'djtraders.session_context.cart_summary',
             ],
         },

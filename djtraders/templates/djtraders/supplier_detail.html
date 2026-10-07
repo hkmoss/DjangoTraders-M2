@@ -227,7 +227,7 @@
                     <td class="text-center">{{ product.needs_reorder|yesno:"Yes,No" }}</td>
 
 <td class="text-center">
-    {% if product.needs_reorder %}
+    {% if product.needs_reorder and not product.is_discontinued %}        
         <form method="post" action="{% url 'djtraders:supplier_reorder' supplier.supplier_id product.product_id %}">
             {% csrf_token %}
             <button type="submit"

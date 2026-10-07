@@ -23,7 +23,7 @@ is the same idea for the customer-facing login, reading "customer_id"
 a time, since login_view/customer_login_view each clear both keys on
 landing (djtraders/views.py).
 """
-from .models import Customer, Employee
+from .models import Customer, Employee, Supplier 
 
 
 def current_employee(request):
@@ -49,6 +49,16 @@ def current_customer(request):
     customer_id = request.session.get("customer_id")
     customer = Customer.objects.filter(pk=customer_id).first() if customer_id else None
     return {"current_customer": customer}
+
+def current_supplier(request):
+    """
+    Looks up the Supplier matching request.session["supplier_id"], if
+    any supplier is currently logged in. Returns
+    {"current_supplier": None} when nobody is logged in.
+    """
+    supplier_id = request.session.get("supplier_id")
+    supplier = Supplier.objects.filter(pk=supplier_id).first() if supplier_id else None
+    return {"current_supplier": supplier}
 
 def cart_summary(request):
     """

@@ -380,6 +380,8 @@ class Product(models.Model):
         order is not enough to exceed the reorder level. Used by
         supplier_detail.html's "Needs Reorder?" column.
         """
+
+        if self.is_discontinued:return False
         stock = self.units_in_stock or 0
         on_order = self.units_on_order or 0
         reorder_level = self.reorder_level or 0
