@@ -390,7 +390,6 @@ def product_create(request):
     return render(request, "djtraders/product_edit.html", context)
 
 
-
 def product_delete(request, product_id):
 
     if not request.session.get("current_user"):
@@ -1009,7 +1008,11 @@ def order_build(request, customer_id):
     cart_lines = _cart_lines(cart)
     cart_total = sum(line.line_total for line in cart_lines)
     product_stock = {product.product_id: product.units_in_stock for product in Product.objects.filter(discontinued=0)}
-    detail_form = OrderDetailForm(category_id=category_id, is_employee=request.user.is_staff)
+    employee_id = request.session.get("current_user")
+    is_manager = employee_id == 3    
+    detail_form = OrderDetailForm(category_id=category_id, is_employee=bool(employee_id),is_manager=is_manager,)
+
+
     # required_date/shipped_date default to a business-convention guess
     # (order_date, today at commit, plus two weeks / one week) but stay
     # real, editable fields on this form -- see OrderCommitForm/
@@ -1035,7 +1038,8 @@ def order_build(request, customer_id):
         "commit_form": commit_form,
         "categories": categories,
         "selected_category": category_id,
-        "product_stock": product_stock
+        "product_stock": product_stock,
+        "is_employee": bool(request.session.get("current_user")),
     }
     return render(request, "djtraders/order_build.html", context)
 
@@ -1073,7 +1077,10 @@ def order_add_line(request, customer_id):
             status=400,
         )
 
-    form = OrderDetailForm(request.POST, is_employee=request.user.is_staff)
+    employee_id = request.session.get("current_user")
+
+    form = OrderDetailForm(request.POST, is_employee=bool(employee_id), is_manager=(employee_id == 3),
+)
     if not form.is_valid():
         # get_json_data(), not the bare ErrorDict form.errors itself --
         # Django's own error objects aren't directly JSON-serializable;
@@ -1105,7 +1112,7 @@ def order_add_line(request, customer_id):
     cart_lines = _cart_lines(cart)
     line = next(line for line in cart_lines if line.product.product_id == product.product_id)
     row_html = render_to_string(
-        "djtraders/_order_line_row.html", {"line": line, "customer_id": customer_id, "product_id": product.product_id}
+        "djtraders/_order_line_row.html", {"line": line, "customer_id": customer_id, "product_id": product.product_id, "is_employee": bool(request.session.get("current_user"))}
     )
     
     cart_total = sum(line.line_total for line in cart_lines)

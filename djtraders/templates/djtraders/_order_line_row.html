@@ -14,7 +14,10 @@
     <td>{{ line.product.product_name }}</td>
     <td class="text-end">${{ line.unit_price|floatformat:2 }}</td>
     <td class="text-end">{{ line.quantity }}</td>
-    <td class="text-end">{{ line.discount|floatformat:2 }}</td>
+
+    {% if is_employee %}
+        <td class="text-end">{{ line.discount|floatformat:2 }}</td>
+    {% endif %}   
     <td class="text-end">${{ line.line_total|floatformat:2 }}</td>
     <td class="text-center">
         <a href="{% url 'djtraders:order_remove_line' customer_id=customer_id product_id=line.product.product_id %}">

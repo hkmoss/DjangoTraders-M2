@@ -348,8 +348,9 @@ class OrderDetailForm(forms.ModelForm):
     clean_<field>(), since it depends on both product and quantity
     together.
     """
-    def __init__(self, *args, category_id="", is_employee=False, **kwargs):
+    def __init__(self, *args, category_id="", is_employee=False, is_manager=False, **kwargs):
         self.is_employee = is_employee
+        self.is_manager = is_manager
         super().__init__(*args, **kwargs)
 
         # Only non-discontinued products are offered -- same reasoning
@@ -375,8 +376,11 @@ class OrderDetailForm(forms.ModelForm):
         # student picking from this dropdown can actually read.
         self.fields["product"].label_from_instance = (lambda product: f"{product.product_name} (${product.unit_price or 0:.2f})")
         self.fields["quantity"].widget.attrs.update({"min": 1, "class": "form-control"})
-        if "discount" in self.fields: 
+        if "discount" in self.fields:
             self.fields["discount"].required = False
+            self.fields["discount"].widget.attrs["max"] = (
+                100 if self.is_manager else 10
+    )
     
     class Meta:
         model = OrderDetail
@@ -403,7 +407,7 @@ class OrderDetailForm(forms.ModelForm):
         """
         discount = self.cleaned_data.get("discount")
 
-        if discount is not None and discount > 10:
+        if (discount is not None and discount > 10 and not self.is_manager):
             raise ValidationError(
                 "Manager approval is required for discounts greater than 10%."
             )
