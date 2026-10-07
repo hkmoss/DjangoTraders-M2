@@ -1116,6 +1116,8 @@ def order_add_line(request, customer_id):
     )
     
     cart_total = sum(line.line_total for line in cart_lines)
+    cart_count = sum(line.get("quantity", 0) for line in cart.get("lines", {}).values()
+    )
     return JsonResponse(
         {
             "success": True,

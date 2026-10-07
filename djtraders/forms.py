@@ -349,6 +349,7 @@ class OrderDetailForm(forms.ModelForm):
     together.
     """
     def __init__(self, *args, category_id="", is_employee=False, is_manager=False, **kwargs):
+    
         self.is_employee = is_employee
         self.is_manager = is_manager
         super().__init__(*args, **kwargs)
@@ -474,6 +475,10 @@ class OrderCommitForm(forms.ModelForm):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["ship_name"].required = True
+        self.fields["ship_address"].required = True
+        self.fields["ship_city"].required = True
+        self.fields["ship_country"].required = True
         self.fields["employee"].required = True
         self.fields["employee"].empty_label = "Select an employee..."
         self.fields["employee"].queryset = self.fields["employee"].queryset.order_by(
