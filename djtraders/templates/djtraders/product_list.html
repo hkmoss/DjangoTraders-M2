@@ -142,6 +142,7 @@
                             <i class="fa-solid fa-eye dt-icon-supplier"></i>
                         </a>
 
+                        {% if current_employee %}
                         <a href="{% url 'djtraders:product_edit' product.product_id %}"
                         title="Edit product">
                             <i class="fa-solid fa-pen fa-lg dt-icon-warning"></i>
@@ -152,7 +153,7 @@
                         class="texter">
                             <i class="fa-solid fa-trash fa-lg dt-icon-danger"></i>
                         </a>
-
+                        {% endif %}
                     </td>                        
 
                     </td>

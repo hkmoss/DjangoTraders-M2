@@ -387,7 +387,14 @@ class Product(models.Model):
         reorder_level = self.reorder_level or 0
 
         return stock + on_order <= reorder_level
-    
+
+    @property
+    def reorder_requested(self):
+        """
+        True when a reorder request has already been submitted for this
+        product. Used to limit suppliers to a single reorder unit request.
+        """
+        return (self.units_on_order or 0) > 0
 
     @classmethod
     def search(cls, product_name="", category_id="", supplier_id="", show_all=False):
