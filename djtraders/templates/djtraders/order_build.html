@@ -153,16 +153,36 @@
                         <div class="mb-3">
                             <label class="form-label">Ship Name</label>
                             {{ commit_form.ship_name }}
+                           
+                            {% if commit_form.ship_name.errors %}
+                                <div class="alert alert-danger mt-1 py-1">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                    {{ commit_form.ship_name.errors }}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Ship Address</label>
                             {{ commit_form.ship_address }}
+                        
+                            {% if commit_form.ship_address.errors %}
+                                <div class="alert alert-danger mt-1 py-1">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                    {{ commit_form.ship_address.errors }}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Ship City</label>
                             {{ commit_form.ship_city }}
+                            {% if commit_form.ship_city.errors %}
+                                <div class="alert alert-danger mt-1 py-1">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                    {{ commit_form.ship_city.errors }}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="mb-3">
@@ -178,6 +198,12 @@
                         <div class="mb-3">
                             <label class="form-label">Ship Country</label>
                             {{ commit_form.ship_country }}
+                         {% if commit_form.ship_country.errors %}
+                            <div class="alert alert-danger mt-1 py-1">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                {{ commit_form.ship_country.errors }}
+                            </div>
+                        {% endif %}   
                         </div>
 
                         <div class="mb-3">
@@ -227,7 +253,7 @@
 
 {% block scripts %}
     <script>
-       const productStock = {};
+       const productStock = {{ product_stock|safe }};
         $(function() {
             AddOrderLineItem('#order-detail-form');
         });

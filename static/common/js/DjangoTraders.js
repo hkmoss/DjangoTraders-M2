@@ -239,6 +239,7 @@ function AddOrderLineItem(formId) {
             showError("Quantity must be at least 1.");
             return;
         }
+
         if (stock !== undefined && quantity > stock) {
             showError(`Only ${stock} units are currently in stock.`);
             return;

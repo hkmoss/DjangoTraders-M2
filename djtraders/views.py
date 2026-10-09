@@ -937,6 +937,7 @@ def _cart_lines(cart):
                 unit_price=unit_price,
                 quantity=quantity,
                 discount=discount,
+                discount_percent=discount * 100,
                 line_total=unit_price * quantity * (1 - discount),
             )
         )

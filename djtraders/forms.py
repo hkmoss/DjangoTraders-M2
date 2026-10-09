@@ -381,7 +381,7 @@ class OrderDetailForm(forms.ModelForm):
             self.fields["discount"].required = False
             self.fields["discount"].widget.attrs["max"] = (
                 100 if self.is_manager else 10
-    )
+            )
     
     class Meta:
         model = OrderDetail
